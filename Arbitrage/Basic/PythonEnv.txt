@@ -1,0 +1,8 @@
+Run the command in CMD
+> python -m venv venv
+
+Activate Windows
+venv\scripts\activate.bat  
+
+Instalationg packages
+pip install "NamePackage"
