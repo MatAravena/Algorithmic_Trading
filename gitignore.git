@@ -1,7 +1,5 @@
 ## Ignore Python VM inner files
-Arbitrage\PyTest\venv
-Arbitrage/PyTest/venv/*
-Arbitrage/PyTest/venv
+./Arbitrage/PyTest/venv
 Arbitrage/PyTest/venv/
 
 /Properties/launchSettings.json
