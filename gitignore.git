@@ -3,6 +3,7 @@
 Arbitrage/PyTest/venv/
 ./__pycache__/
 *.cfg
+*.pyc
 
 /Properties/launchSettings.json
 
