@@ -1,7 +1,9 @@
 ## Ignore Python VM inner files
 ./Arbitrage/PyTest/venv/
 Arbitrage/PyTest/venv/
-./__pycache__/
+Arbitrage/__pycache__/
+./Arbitrage/__pycache__/
+
 *.cfg
 *.pyc
 
