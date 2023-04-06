@@ -13,11 +13,11 @@ def get_coin_tickers(url):
 # Loop through each object and find the tradeable pairs
 def collectTradeables(coin_json):
     coin_list = []
-    for coin in coin_json: 
-        isFrozen =  coin_json[coin]["isFrozen"]
-        isPostOnly = coin_json[coin]["isFrozen"] 
+    for coin in coin_json:
+        isFrozen =  coin_json[coin]["isFrozen"] 
+        isPostOnly = coin_json[coin]["postOnly"]  
 
-        if isFrozen == "0" or isPostOnly == "0":
+        if isFrozen == "0" and isPostOnly == "0":
             coin_list.append(coin)
     return coin_list
 
@@ -400,13 +400,75 @@ def calc_triangular_arb_surface_rate(t_pair ,prices_dict):
         trade_description_2 = f"Swap {acquired_coin_t1} of {swap_2} at {swap_2_rate} for {swap_3} acquiring {acquired_coin_t2}."
         trade_description_3 = f"Swap {acquired_coin_t2} of {swap_3} at {swap_3_rate} for {swap_1} acquiring {acquired_coin_t3}."
 
-        if profit_loss > 0:            
-            print("New Trade")
-            print (trade_description_1 )
-            print (trade_description_2 )
-            print (trade_description_3 )
-            print( acquired_coin_t3 / swap_1_rate )
-            break
+        # OutPuts Results
+        if profit_loss_perc > min_surface_rate:
+            surface_dict = {
+                "swap_1": swap_1,
+                "swap_2": swap_2,
+                "swap_3": swap_3,
+                "contract_1": contract_1,
+                "contract_2": contract_2,
+                "contract_3": contract_3,
+                "direction_trade_1": direction_trade_1,
+                "direction_trade_2": direction_trade_2,
+                "direction_trade_3": direction_trade_3,
+                "starting_amount": starting_amount,
+                "acquired_coin_t1": acquired_coin_t1,
+                "acquired_coin_t2": acquired_coin_t2,
+                "acquired_coin_t3": acquired_coin_t3,
+                "swap_1_rate": swap_1_rate,
+                "swap_2_rate": swap_2_rate,
+                "swap_3_rate": swap_3_rate,
+                "profit_loss": profit_loss,
+                "profit_loss_perc": profit_loss_perc,
+                "direction": direction,
+                "trade_description_1": trade_description_1,
+                "trade_description_2": trade_description_2,
+                "trade_description_3": trade_description_3
+            }
+            return surface_dict
+    return surface_dict
+
+        # if profit_loss > 0:            
+        #     print("New Trade")
+        #     print (trade_description_1 )
+        #     print (trade_description_2 )
+        #     print (trade_description_3 )
+        #     print( acquired_coin_t3 / swap_1_rate )
+        #     break
 
         # if acquired_coin_t3 > starting_amount:
         #     print(direction, pair_a , pair_b, pair_c, starting_amount, acquired_coin_t3)
+
+# Get the Depth from the Orderbook
+def getDepthFromOrderbook():
+
+    """ 
+        Challengues
+        Full amount of available starting amount can be eaten on the first level ( level 0)
+        Some of the amount in can be eaten up by multiple levels
+        Some coins may not have enough liquidity
+    """
+
+    # Extract initial variables
+    swap_1 = "USDT"
+    starting_amount = 1
+    starting_amount_dict = { 
+        "USDT" : 100, 
+        "USDC" : 100, 
+        "BTC" : 0.05, 
+        "ETH": 0.1 
+    }
+    
+    if swap_1 in starting_amount_dict:
+        starting_amount = starting_amount_dict[swap_1]
+
+    # Define pairs
+    contract_1 = "USDT_BTC"
+    contract_2 = "BTC_ETH"
+    contract_3 = "USDT_ETH"
+
+    # Define directions for trades
+    contract_1_direction = "baseToQuote"
+    contract_2_direction = "baseToQuote"
+    contract_3_direction = "quoteToBase"
