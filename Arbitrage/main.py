@@ -49,18 +49,20 @@ def step2():
     
     # Loop trough and Structurate price information
     for t_pair in structurated_paris:
+        time.sleep(0.3)
         prices_dict = func_arbitrage.get_price_for_t_pair(t_pair ,prices_json)
         surface_arb = func_arbitrage. calc_triangular_arb_surface_rate(t_pair ,prices_dict)
+
         if len(surface_arb) > 0:
-            print(surface_arb["trade_description_1"])
-            print(surface_arb["trade_description_2"])
-            print(surface_arb["trade_description_3"])
+            real_rate_arbitrage = func_arbitrage.getDepthFromOrderbook(surface_arb)
+            print(real_rate_arbitrage)
+            time.sleep(10)
         
-        time.sleep(0.5)
 
 """ MAIN """
 if __name__ == "__main__":
     # coin_list = step0()
     # structured_pairs = step1(coin_list)
-    step2()
-    func_arbitrage.getDepthFromOrderbook()
+    while True:
+        step2()
+    

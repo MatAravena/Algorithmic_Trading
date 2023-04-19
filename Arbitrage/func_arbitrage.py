@@ -1,3 +1,4 @@
+import time
 import requests
 import json
 
@@ -440,35 +441,139 @@ def calc_triangular_arb_surface_rate(t_pair ,prices_dict):
         # if acquired_coin_t3 > starting_amount:
         #     print(direction, pair_a , pair_b, pair_c, starting_amount, acquired_coin_t3)
 
-# Get the Depth from the Orderbook
-def getDepthFromOrderbook():
+# Reformat order Book for Depth Calculation
+def reformated_orderbook(prices, c_direction):
+    price_list_main = []
+    # prices["asks"] = [str(i).replace(",", "") for i in prices["asks"]]
+    # prices["asks"] = [str(i).replace(" ", "") for i in prices["asks"]]
+    # prices["bids"] = [str(i).replace(",", "") for i in prices["bids"]]
+    # prices["bids"] = [str(i).replace(" ", "") for i in prices["bids"]]
 
+    if c_direction == "baseToQuote":
+        for p in prices["asks"]:
+            ask_price = float(p[0])
+            adj_price = 1 / ask_price if ask_price != 0 else 0
+            adj_quantity = float(p[1]) * ask_price
+            price_list_main.append([adj_price, adj_quantity])
+
+    if c_direction == "quoteToBase":
+        for p in prices["bids"]:
+            bid_price = float(p[0])
+            adj_price = bid_price if bid_price != 0 else 0
+            adj_quantity = float(p[1])
+            price_list_main.append([adj_price, adj_quantity])
+    return price_list_main
+
+# Get Acquired Coin also known as Depth Calculation
+def  calculate_acquired_coin(amount_in, orderBook):
     """ 
         Challengues
         Full amount of available starting amount can be eaten on the first level ( level 0)
         Some of the amount in can be eaten up by multiple levels
         Some coins may not have enough liquidity
     """
+    # Initialization variables
+    trading_balance = amount_in
+    quantity_bought = 0
+    acquired_coin = 0
+    counts = 0       
+    for level in orderBook:
+        
+        # Extract the level price and quantity
+        level_price = level[0]
+        level_available_quantity = level[1]
+
+        # Amount in is <= first level than total amount
+        if trading_balance <= level_available_quantity:
+            quantity_bought = trading_balance
+            trading_balance = 0
+            amount_bought = quantity_bought * level_price
+
+        # Amount in is >= given level than total amount
+        if trading_balance > level_available_quantity:
+            quantity_bought = level_available_quantity
+            trading_balance -= quantity_bought
+            amount_bought = quantity_bought * level_price
+
+        # Accumulate acquired coin
+        acquired_coin = acquired_coin + amount_bought
+
+        # Exit trade
+        if trading_balance == 0:
+            return acquired_coin
+    
+        # Exit if not enough order book levels
+        counts += 1
+        if counts == len(orderBook):
+            return 0
+
+# Get the Depth from the Orderbook
+def getDepthFromOrderbook(surface_arb):
 
     # Extract initial variables
-    swap_1 = "USDT"
-    starting_amount = 1
+    swap_1 = surface_arb['swap_1']
+    starting_amount = 100
     starting_amount_dict = { 
         "USDT" : 100, 
-        "USDC" : 100, 
+        "USDC" : 100,
         "BTC" : 0.05, 
         "ETH": 0.1 
     }
-    
+
     if swap_1 in starting_amount_dict:
         starting_amount = starting_amount_dict[swap_1]
 
+    #Limit depth trades
+    depth = 20
+
     # Define pairs
-    contract_1 = "USDT_BTC"
-    contract_2 = "BTC_ETH"
-    contract_3 = "USDT_ETH"
+    contract_1 = surface_arb['contract_1']
+    contract_2 = surface_arb['contract_2']
+    contract_3 = surface_arb['contract_3']
 
     # Define directions for trades
-    contract_1_direction = "baseToQuote"
-    contract_2_direction = "baseToQuote"
-    contract_3_direction = "quoteToBase"
+    contract_1_direction = surface_arb['direction_trade_1']
+    contract_2_direction = surface_arb['direction_trade_2']
+    contract_3_direction = surface_arb['direction_trade_3']
+
+    # Get Order book for First Trade Assessment 
+    # https://api.poloniex.com/markets/ETH_USDT/orderBook?limit=20
+    # url1 = f'https://api.poloniex.com/markets/{contract_1}/orderBook2?limit={depth}'
+    url1 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_1}&depth={depth}'
+    depth_1_prices = get_coin_tickers(url1)
+    depth_1_reformatted_prices = reformated_orderbook(depth_1_prices, contract_1_direction)
+    time.sleep(0.3)
+    
+    url2 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_2}&depth={depth}'
+    depth_2_prices = get_coin_tickers(url2)
+    depth_2_reformatted_prices = reformated_orderbook(depth_2_prices, contract_2_direction)
+    time.sleep(0.3)
+    
+    url3 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_3}&depth={depth}'
+    depth_3_prices = get_coin_tickers(url3)
+    depth_3_reformatted_prices = reformated_orderbook(depth_3_prices, contract_3_direction)
+    time.sleep(0.3)
+
+    # Get Acquired Coins
+    acquired_coint_t1 = calculate_acquired_coin(starting_amount, depth_1_reformatted_prices)
+    acquired_coint_t2 = calculate_acquired_coin(acquired_coint_t1, depth_2_reformatted_prices)
+    acquired_coint_t3 = calculate_acquired_coin(acquired_coint_t2, depth_3_reformatted_prices)
+
+    # Calculate profit loss also known as real rate
+    profit_loss = acquired_coint_t3 - starting_amount
+    real_rate_percentage = (profit_loss/starting_amount) * 100 if profit_loss != 0 else 0
+
+    if real_rate_percentage > -1:
+        return {
+            'profit_loss': profit_loss,
+            'real_rate_percentage': real_rate_percentage,
+            'contract_1': contract_1,
+            'contract_2': contract_2,
+            'contract_3': contract_3,
+            'contract_1_direction': contract_1_direction,
+            'contract_2_direction': contract_2_direction,
+            'contract_3_direction': contract_3_direction,
+        }
+    else:
+        return {}
+
