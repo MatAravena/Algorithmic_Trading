@@ -1,6 +1,7 @@
 ## Ignore Python VM inner files 
 Arbitrage/PyTest/venv/
 Arbitrage/__pycache__/
+.vscode/
 
 *.cfg
 *.pyc
