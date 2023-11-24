@@ -33,7 +33,6 @@ function calculateArbitrage(amountIn, amountOut, surfaceObj) {
   return
 }
 
-
 // GET PRICE //////////////////////////////
 async function getPrice(factory, amtIn, tradeDirection) {
 
@@ -113,21 +112,40 @@ async function getPrice(factory, amtIn, tradeDirection) {
   // 0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6
 
   // Get Uniswap V3 Quote
-  const quoterAddress = "0x61fFE014bA17989E743c5F6cB21bF9697530B21e";
-  const quoterContract = new ethers.Contract(quoterAddress, QuoterABI, provider)
+  const quoterAddress = "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a";
+  const quoterContract = new ethers.Contract(quoterAddress.toLowerCase(), QuoterABI, provider)
   let quotedAmountOut = 0
+
   try {
 
+    // const params = {
+    //   "tokenIn": inputTokenA,
+    //   "tokenOut": inputTokenB,
+    //   "amountIn": amountIn,
+    //   "fee": tokenFee,
+    //   "sqrtPriceLimitX96": 0,
+    // }
     const params = {
-      tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      tokenOut: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      tokenIn: inputTokenA.toLowerCase(),
+      tokenOut: inputTokenB.toLowerCase(),
       amountIn: amountIn,
       fee: tokenFee,
       sqrtPriceLimitX96: 0,
     }
+
     quotedAmountOut = await quoterContract.quoteExactInputSingle.call(params) 
+    // quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
+    //   inputTokenA,  inputTokenB, amountIn,  tokenFee, 0,
+    // )
 
     console.log('quotedAmountOut', quotedAmountOut)
+    // returns (
+    //     uint256 amountOut,
+    //     uint160 sqrtPriceX96After,
+    //     uint32 initializedTicksCrossed,
+    //     uint256 gasEstimate
+    // )
+
     console.log('quotedAmountOut', quotedAmountOut.amountOut)
 
   } catch (err) {
@@ -136,7 +154,7 @@ async function getPrice(factory, amtIn, tradeDirection) {
   }
 
     // Format Output
-    let outputAmount = ethers.formatUnits(quotedAmountOut, inputDecimalsB).toString()
+    let outputAmount = ethers.formatUnits(quotedAmountOut.amountOut, inputDecimalsB).toString()
     
     console.log('outputAmount', outputAmount)
     return outputAmount
@@ -168,25 +186,24 @@ async function getDepth(amountIn) {
     let acquiredCoinT1 = await getPrice(pair1ContractAddress, amountIn, trade1Direction)
     console.log('acquiredCoinT1', acquiredCoinT1)
 
-    // // Trade 2
-    // if (acquiredCoinT1 == 0) {return}
-    // let acquiredCoinT2 = await getPrice(pair2ContractAddress, acquiredCoinT1, trade2Direction)
-    // console.log('acquiredCoinT2', acquiredCoinT2)
+    // Trade 2
+    if (acquiredCoinT1 == 0) {return}
+    let acquiredCoinT2 = await getPrice(pair2ContractAddress, acquiredCoinT1, trade2Direction)
+    console.log('acquiredCoinT2', acquiredCoinT2)
 
-    // // Trade 3
-    // if (acquiredCoinT2 == 0) {return}
-    // let acquiredCoinT3 = await getPrice(pair3ContractAddress, acquiredCoinT2, trade3Direction)
+    // Trade 3
+    if (acquiredCoinT2 == 0) {return}
+    let acquiredCoinT3 = await getPrice(pair3ContractAddress, acquiredCoinT2, trade3Direction)
 
-    // console.log('amountIn', amountIn)
-    // console.log('acquiredCoinT3', acquiredCoinT3)
-    // console.log('result', result)
+    console.log('amountIn', amountIn)
+    console.log('acquiredCoinT3', acquiredCoinT3)
+    console.log('result', result)
 
-    // // Calculate Result
-    // let result = calculateArbitrage(amountIn, acquiredCoinT3, fileJsonArrayLimit[i])
-
-    // console.log('result', result)
+    // Calculate Result
+    let result = calculateArbitrage(amountIn, acquiredCoinT3, fileJsonArrayLimit[i])
+    console.log('result', result)
   }
-  return 
+  return
 }
 
 getDepth(amountIn=100)

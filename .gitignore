@@ -2,6 +2,7 @@
 Arbitrage/PyTest/venv/
 Arbitrage/__pycache__/
 .vscode/
+node_modules/
 
 *.cfg
 *.pyc

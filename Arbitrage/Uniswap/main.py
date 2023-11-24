@@ -43,9 +43,9 @@ def retrieveUniswapInformation():
  
 if __name__ == "__main__":
 
-    # while True:
+    while True:
         pairs = retrieveUniswapInformation()["data"]["pools"] 
-        structured_pairs = func_triangular_arb.structure_trading_pairs(pairs, limit=200)
+        structured_pairs = func_triangular_arb.structure_trading_pairs(pairs, limit=500)
 
         #Get surface rates
         surface_rate_list = []
@@ -61,4 +61,4 @@ if __name__ == "__main__":
                 json.dump(surface_rate_list, fp)
                 print('new file save')
 
-        # time.sleep(60)
+        time.sleep(60)

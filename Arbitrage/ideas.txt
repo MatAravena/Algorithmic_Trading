@@ -1,0 +1,12 @@
+
+* create several bots to check arbitrages oportunities within several echanges
+
+* find methods to calculate the real gas used
+
+* find different ways t execute them
+
+* connect a real wallet to test if that work
+
+
+
+** Momentum Trading
