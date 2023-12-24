@@ -9,6 +9,7 @@ def sandwich_trade(token_a, token_b):
     price_b = client.get_price(token_b)
     # Calculate the spread between the two prices
     spread = price_b - price_a
+
     # If the spread is greater than or equal to 0.01%, then execute the trade
     if spread >= 0.0001:
         # Buy token A
@@ -74,15 +75,21 @@ def export_possible_trades_to_csv():
             f.write(f"{trade[0]},{trade[1]},{trade[2]}\n")
 
 if __name__ == "__main__":
+
     # Initialize the Web3 provider
-    web3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/<YOUR_INFURA_PROJECT_ID>"))
+    web3 = web3.Web3(web3.Web3.HTTPProvider("https://mainnet.infura.io/v3/<YOUR_INFURA_PROJECT_ID>"))
+
     # Initialize the Uniswap client
     client = UniswapV2Client(web3)
+
     # Initialize the MetaMask wallet
     wallet = MetaMask()
+
     # List possible trades
     list_possible_trades()
+
     # Prompt the user which trades to execute
     prompt_user_which_trades_to_execute()
+
     # Export possible trades to CSV file
     export_possible_trades_to_csv()

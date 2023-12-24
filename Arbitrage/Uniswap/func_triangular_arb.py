@@ -423,7 +423,6 @@ def calc_triangular_arb_surface_rate(t_pair, min_rate):
                 "tradeDesc2": trade_description_2,
                 "tradeDesc3": trade_description_3
             }
-            print( surface_dict)
             return surface_dict
 
     return surface_dict

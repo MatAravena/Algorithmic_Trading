@@ -8,7 +8,7 @@
             "name": "Python: main.py",
             "type": "python",
             "request": "launch",
-            "program": "Arbitrage/Uniswap/main.py",
+            "program": "Arbitrage/TriArb/main.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

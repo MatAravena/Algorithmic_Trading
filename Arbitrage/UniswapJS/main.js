@@ -103,7 +103,6 @@ async function getPrice(factory, amtIn, tradeDirection) {
   if (!isNaN(amtIn)) {amtIn = amtIn.toString()}
   let amountIn = ethers.parseUnits(amtIn, inputDecimalsA).toString()
 
-
   //Uniswap QuoterV2 Base Address
   //0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a
   //Uniswap QuoterV2 Mainnet, Goerli, Arbitrum, Optimism, Polygon Address
