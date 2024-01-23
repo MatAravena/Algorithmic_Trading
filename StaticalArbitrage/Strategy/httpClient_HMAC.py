@@ -50,7 +50,7 @@ def GET(endPoint,payload=''):
         'X-BAPI-RECV-WINDOW': recv_window,
         'Content-Type': 'application/json'
     }
-    print('result Get', api_url+endPoint+'?'+payload)
+    # print('result Get', api_url+endPoint+'?'+payload)
     # response = httpClient.request("GET", api_url+endPoint+'?', headers=headers, data=payload)
     response = httpClient.request("GET", api_url+endPoint+'?'+payload, headers=headers)
     
@@ -78,7 +78,6 @@ def genSignature(payload):
     hash = hmac.new(bytes(api_secret, "utf-8"), param_str.encode("utf-8"),hashlib.sha256)
     signature = hash.hexdigest()
     return signature
-
 
 # Examples
 # #Create Order

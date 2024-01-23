@@ -57,7 +57,6 @@ def step2():
             real_rate_arbitrage = func_arbitrage.getDepthFromOrderbook(surface_arb)
             print(real_rate_arbitrage)
             time.sleep(10)
-        
 
 """ MAIN """
 if __name__ == "__main__":
@@ -65,4 +64,3 @@ if __name__ == "__main__":
     # structured_pairs = step1(coin_list)
     while True:
         step2()
-    

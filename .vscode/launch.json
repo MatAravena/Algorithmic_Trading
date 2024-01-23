@@ -8,7 +8,8 @@
             "name": "Python: main.py",
             "type": "python",
             "request": "launch",
-            "program": "Arbitrage/TriArb/main.py",
+            // "program": "Arbitrage/TriArb/main.py",
+            "program": "StaticalArbitrage/Execution/main_execution.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -5,7 +5,6 @@ from func_cointegration import calculate_zscore
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
 # Plot prices and trends
 def plot_trends(sym_1, sym_2, price_data):
 

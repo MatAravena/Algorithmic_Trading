@@ -1,5 +1,5 @@
 
-* create several bots to check arbitrages oportunities within several echanges
+* create several bots to check arbitrages oportunities within several exchanges
 
 * find methods to calculate the real gas used
 

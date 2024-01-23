@@ -4,6 +4,7 @@ Arbitrage/__pycache__/
 .vscode/
 .conda/
 node_modules/
+personal_configuration.py
 
 *.cfg
 *.pyc

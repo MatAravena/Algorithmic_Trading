@@ -5,35 +5,42 @@ import pandas as pd
 import numpy as np
 import math
 
-
 # Calculate Z-Score
 def calculate_zscore(spread):
-    df = pd.DataFrame(spread)
-    mean = df.rolling(center=False, window=z_score_window).mean()
-    std = df.rolling(center=False, window=z_score_window).std()
-    x = df.rolling(center=False, window=1).mean()
-    df["ZSCORE"] = (x - mean) / std
-    return df["ZSCORE"].astype(float).values
+    dataFrame = pd.DataFrame(spread)
+    mean = dataFrame.rolling(center=False, window=z_score_window).mean()
+    standar_deviation = dataFrame.rolling(center=False, window=z_score_window).std()
+    x = dataFrame.rolling(center=False, window=1).mean()
+    dataFrame["ZSCORE"] = (x - mean) / standar_deviation
+    return dataFrame["ZSCORE"].astype(float).values
 
 # Calculate spread
 def calculate_spread(series_1, series_2, hedge_ratio):
     spread = pd.Series(series_1) - (pd.Series(series_2) * hedge_ratio)
     return spread
 
-
 # Calculate co-integration
 def calculate_cointegration(series_1, series_2):
+ 
+    if(len(series_1) != len(series_2)):
+        return (0,0,0,0,0,0)
+    
     coint_flag = 0
     coint_res = coint(series_1, series_2)
     coint_t = coint_res[0]
     p_value = coint_res[1]
     critical_value = coint_res[2][1]
-    model = sm.OLS(series_1, series_2).fit()
+
+    model = sm.OLS(series_1 ,series_2)
+    model = model.fit()
+
     hedge_ratio = model.params[0]
     spread = calculate_spread(series_1, series_2, hedge_ratio)
     zero_crossings = len(np.where(np.diff(np.sign(spread)))[0])
+ 
     if p_value < 0.5 and coint_t < critical_value:
         coint_flag = 1
+
     return (coint_flag, round(p_value, 2), round(coint_t, 2), round(critical_value, 2), round(hedge_ratio, 2), zero_crossings)
 
 # Put close prices into a list
@@ -42,8 +49,8 @@ def extract_close_prices(prices):
     for price_values in prices:
         if math.isnan(float(price_values[4])):
             return []
-        close_prices.append(price_values[4])
-    return close_prices
+        close_prices.append(float(price_values[4]))
+    return sorted(close_prices)
 
 # Calculate cointegrated pairs
 def get_cointegrated_pairs(prices):
@@ -64,13 +71,12 @@ def get_cointegrated_pairs(prices):
                     continue
 
                 # Get close prices
-                print('sym 1')                
                 series_1 = extract_close_prices(prices[sym_1])
-                print('sym 2')
                 series_2 = extract_close_prices(prices[sym_2])
 
                 # Check for cointegration and add cointegrated pair
                 coint_flag, p_value, t_value, c_value, hedge_ratio, zero_crossings = calculate_cointegration(series_1, series_2)
+
                 if coint_flag == 1:
                     included_list.append(unique)
                     coint_pair_list.append({
